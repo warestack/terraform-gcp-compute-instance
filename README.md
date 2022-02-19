@@ -8,7 +8,7 @@ Infra provisioned by Terraform in Google Cloud
 
 **Config Gcloud CLI**  
 Be authenticated using the commands below.  
-*infrastructure is provisioned in `europe-west2` region
+*infrastructure is provisioned in `europe-west2` region. You can use your desired region by adjusting the `TF_VAR_region` variable in the main workflow
 
 ```bash
 gcloud init
@@ -58,7 +58,7 @@ gcloud services enable iap.googleapis.com
 
 ### Provision Infra using GitOps
 
-1. Encode the file's content in BASE64 format and store it as a secret named GCP_TF_SA_CREDS_BASE64 on GitHub,  in a new Github environment with protection rules is preferred.
+1. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred.
 
 ```bash
 cat key.json | base64
@@ -79,11 +79,9 @@ or using the [base64encode.org](https://www.base64encode.org/) online
 
 ```bash
 credentials        = "./credentials.json"
-project_id         = "chim-test-335219"
-region             = "europe-west2"
-zones              = ["europe-west2-a", "europe-west2-b", "europe-west2-c"]
-name               = "chim-test"
-domain             = "chimnie.test"
+project_id         = "project_id"
+region             = "region"
+name               = "workspace_name"
 ```
 
 ### Terraform usage
@@ -106,8 +104,8 @@ The `--auto-approve` option tells Terraform not to require interactive approval 
 
 ### For any questions, suggestions, or feature requests
 
-Get in touch with me on Linkedin:
-- [Linkedin account](https://www.linkedin.com/in/dimitris-kargatzis-1385a2101/)
+Get in touch with me on LinkedIn:
+- [LinkedIn account](https://www.linkedin.com/in/dimitris-kargatzis-1385a2101/)
 
 ### License
 
