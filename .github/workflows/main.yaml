@@ -1,0 +1,57 @@
+name: Infra managed by terraform
+on:
+  push:
+    branches:
+      - main
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      tf_version: '0.14.8'
+      tf_working_dir: '.'
+      tf_bucket_name: 'terraform-state-project-id'
+      TF_VAR_project_id: 'sample-project-id'
+      TF_VAR_name: 'lab-6'
+      TF_VAR_region: 'europe-west2'
+    steps:
+      - name: checkout
+        id: checkout_code
+        uses: actions/checkout@v2
+
+      # Config authentication to Google Cloud
+      - id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_TF_SA_CREDS_BASE64 }}
+
+      # Store terraform SA credentials
+      - name: Store SA credentials to the credentials json file
+        id: sa-config
+        run: |
+          echo ${{ secrets.GCP_TF_SA_CREDS_BASE64 }} | base64 -d > credentials.json
+        shell: bash
+
+      # Init terraform modules
+      - name: Terraform Init
+        id: tf_init
+        run: terraform init -backend-config="bucket=${{ env.tf_bucket_name }}"
+
+      # Validate the configuration files
+      - name: Terraform Validate
+        id: tf_validate
+        run: terraform validate
+
+      # Preview the changes that terraform plans to make to the infra
+      - name: Terraform Plan
+        id: terraform_plan
+        run: terraform plan
+
+      # Apply the changes to the infra
+      - name: Terraform Apply
+        id: tf_apply
+        run: terraform apply --auto-approve
