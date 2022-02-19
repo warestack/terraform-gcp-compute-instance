@@ -58,7 +58,25 @@ gcloud services enable iap.googleapis.com
 
 ### Provision Infra using GitOps
 
-1. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred.
+1. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for setting a new Github env.
+If you do so, make sure that the right environment is defined in the main workflow.
+
+```bash
+name: Infra managed by terraform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: <your_new_environment>
+    steps:
+      - name: provisioning
+        # ...provisioning-specific steps
+```
 
 ```bash
 cat key.json | base64
