@@ -58,7 +58,7 @@ gcloud services enable iap.googleapis.com
 
 ### Provision Infra using GitOps
 
-1. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for setting a new Github env.
+1. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for setting a new Github environment.
 If you do so, make sure that the right environment is defined in the main workflow.
 
 ```bash
@@ -83,7 +83,7 @@ cat key.json | base64
 ```
 or using the [base64encode.org](https://www.base64encode.org/) online
 
-2. Set the required tf_variables in the main workflow. **Note** variables that starts with TF_VAR_ are visible to the Terraform code only.            
+2. Set the required tf_variables in the main workflow. **Note** environment variables must have the `TF_VAR_` prefix in order to be visible in the Terraform code.            
 
 
 3. Push your changes. You can use the Github workflow status page to monitor the progress of the workflow.
