@@ -23,7 +23,7 @@ Bucket name must be globally unique. You can use a bucket name that contains the
 gsutil mb -p <project_id> -c <storage_class> -l <region> gs://<bucket_name>
 ```
 
-Enable remote state versioning
+Enable remote state versioning (optional)
 
 ```bash
 gsutil versioning set on gs://<bucket_name>
@@ -52,13 +52,15 @@ gcloud config set project <project_id>
 
 ```bash
 gcloud services enable compute.googleapis.com
+gcloud services enable cloudresourcemanager.googleapis.com
 gcloud services enable iam.googleapis.com
 gcloud services enable iap.googleapis.com
 ```
 
 ### Provision Infra using GitOps
 
-1. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for setting a new Github environment.
+1. Enable Github workflows, navigate to the **Actions** page of the repository and enable the main workflow.
+2. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for setting a new Github environment.
 If you do so, make sure that the right environment is defined in the main workflow.
 
 ```bash
@@ -99,6 +101,7 @@ or using the [base64encode.org](https://www.base64encode.org/) online
 credentials        = "./credentials.json"
 project_id         = "project_id"
 region             = "region"
+zone               = "zone"
 name               = "workspace_name"
 ```
 
