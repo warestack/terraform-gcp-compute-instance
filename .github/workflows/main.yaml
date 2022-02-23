@@ -18,6 +18,7 @@ jobs:
       TF_VAR_project_id: 'sample-project-id'
       TF_VAR_name: 'lab-6'
       TF_VAR_region: 'europe-west2'
+      TF_VAR_zone: 'europe-west2-a'
     steps:
       - name: checkout
         id: checkout_code
