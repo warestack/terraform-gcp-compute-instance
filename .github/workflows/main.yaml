@@ -14,8 +14,8 @@ jobs:
     env:
       tf_version: '0.14.8'
       tf_working_dir: '.'
-      tf_bucket_name: 'terraform-state-project-id'
-      TF_VAR_project_id: 'sample-project-id'
+      tf_bucket_name: 'lab-7-270015-terraform-state'
+      TF_VAR_project_id: 'lab-7-270015'
       TF_VAR_name: 'lab-6'
       TF_VAR_region: 'europe-west2'
       TF_VAR_zone: 'europe-west2-a'
