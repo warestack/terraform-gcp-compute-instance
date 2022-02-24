@@ -7,7 +7,8 @@ resource "google_compute_firewall" "firewall" {
     ports    = ["22", "80", "3000", "3001"]
   }
 
-  source_tags = ["node-app"]
+  source_ranges = ["0.0.0.0/0"]
+  source_tags   = ["node-app"]
 }
 
 resource "google_project_service" "iap-api" {
