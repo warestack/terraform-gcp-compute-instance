@@ -14,11 +14,11 @@ jobs:
     env:
       tf_version: '0.14.8'
       tf_working_dir: '.'
-      tf_bucket_name: 'lab-7-270015-terraform-state'
-      TF_VAR_project_id: 'lab-7-270015'
+      tf_bucket_name: 'cc2022-lab-6-terraform-state'
+      TF_VAR_project_id: 'cc2022-lab-6'
       TF_VAR_name: 'lab-6'
-      TF_VAR_region: 'europe-west2'
-      TF_VAR_zone: 'europe-west2-a'
+      TF_VAR_region: 'us-central1'
+      TF_VAR_zone: 'us-central1-a'
     steps:
       - name: checkout
         id: checkout_code
