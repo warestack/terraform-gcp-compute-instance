@@ -4,7 +4,7 @@ resource "google_compute_firewall" "firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80", "3000", "3001"]
+    ports    = ["22", "80", "3000", "3001"]
   }
 
   source_tags = ["node-app"]
