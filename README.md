@@ -1,14 +1,18 @@
-# cloud-computing-lab-6-terraform
-Infra provisioned by Terraform in Google Cloud
+# terraform-gcp-compute-instance
 
-### Prerequisites
+This is a sample Terraform configuration for creating a compute instance and its VPC network and firewall rules in GCP.
+This is the minimum configuration to demonstrate the Continuous Deployment pipeline of any Web application
+(e.g. [flask-app](https://github.com/warestack/gcp-continious-deployment)) on GCP compute instances using Docker and
+GitHub workflows.
+
+## Prerequisites
 
 * Gcloud CLI
 * Kubectl
 
-**Config Gcloud CLI**  
-Be authenticated using the commands below.  
-*infrastructure is provisioned in `europe-west2` region. You can use your desired region by adjusting the `TF_VAR_region` variable in the main workflow
+### Config Gcloud CLI
+
+Be authenticated using the commands below.
 
 ```bash
 gcloud init
@@ -17,13 +21,14 @@ gcloud auth application-default login
 
 ### Create bcs to support remote terraform state on GCP. 
 
-Bucket name must be globally unique. You can use a bucket name that contains the project id e.g `terraform-state-<project_id>`
+Bucket name must be globally unique. You can use a bucket name that contains the project id e.g. 
+`terraform-state-<project_id>`.
 
 ```bash
 gsutil mb -p <project_id> -c <storage_class> -l <region> gs://<bucket_name>
 ```
 
-Enable remote state versioning (optional)
+Enable remote state versioning (optional).
 
 ```bash
 gsutil versioning set on gs://<bucket_name>
@@ -33,79 +38,93 @@ gsutil versioning set on gs://<bucket_name>
 
 1. Create a new service account for Terraform, add a new KEY, download the generated JSON file with the service account credentials.
 
-```bash
-gcloud iam service-accounts create <serviceAccountName> --project <project_id>
-gcloud iam service-accounts keys create key.json --iam-account=<serviceAccount.email>
-```
+   ```bash
+   gcloud iam service-accounts create <serviceAccountName> --project <project_id>
+   gcloud iam service-accounts keys create key.json --iam-account=<serviceAccount.email>
+   ```
 
-2.Assign required roles to the new service account
-```bash
-gcloud projects add-iam-policy-binding <project_id> --member='serviceAccount:<serviceAccount.email>' --role='roles/storage.admin'   
-gcloud projects add-iam-policy-binding <project_id> --member='serviceAccount:<serviceAccount.email>' --role='roles/storage.objectAdmin'   
-gcloud projects add-iam-policy-binding <project_id> --member='serviceAccount:<serviceAccount.email>' --role='roles/compute.admin'
-```
+2. Assign required roles to the new service account.
 
-3.Enable the `Google APIs`. Make sure that gcloud is configured with the right project
-```bash
-gcloud config set project <project_id>
-```
+   ```bash
+   gcloud projects add-iam-policy-binding <project_id> --member='serviceAccount:<serviceAccount.email>' --role='roles/storage.admin'   
+   gcloud projects add-iam-policy-binding <project_id> --member='serviceAccount:<serviceAccount.email>' --role='roles/storage.objectAdmin'   
+   gcloud projects add-iam-policy-binding <project_id> --member='serviceAccount:<serviceAccount.email>' --role='roles/compute.admin'
+   ```
 
-```bash
-gcloud services enable compute.googleapis.com
-gcloud services enable cloudresourcemanager.googleapis.com
-gcloud services enable iam.googleapis.com
-gcloud services enable iap.googleapis.com
-```
+3. Enable the `Google APIs`. Make sure that gcloud is configured to use the right project.
 
-### Provision Infra using GitOps
+   ```bash
+   gcloud config set project <project_id>
+   ```
+   
+   ```bash
+   gcloud services enable compute.googleapis.com
+   gcloud services enable cloudresourcemanager.googleapis.com
+   gcloud services enable iam.googleapis.com
+   gcloud services enable iap.googleapis.com
+   ```
 
-1. Enable Github workflows, navigate to the **Actions** page of the repository and enable the main workflow.
-2. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new Github environment with protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) for setting a new Github environment.
-If you do so, make sure that the right environment is defined in the main workflow.
+## Provision Infra resources using GitOps
 
-```bash
-name: Infra managed by terraform
+1. Enable GitHub workflows, navigate to the **Actions** page of the repository and enable the main workflow.
+2. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a
+   new GitHub environment with protection rules is preferred. See the following
+   [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
+   for setting a new GitHub environment. If you do so, make sure that the right environment is defined in the main
+   workflow.
 
-on:
-  push:
-    branches:
-      - main
+    ```yaml
+    name: Terraform Init, Validate, Plan and Apply
+    
+    on:
+      push:
+        branches:
+          - 'main'
+      release:
+        types: [created]
+    
+    jobs:
+      terraform:
+        runs-on: ubuntu-latest
+        environment: <your_new_environment>
+        env:
+          tf_version: '0.14.8'
+          tf_working_dir: '.'
+          tf_bucket_name: ${{ secrets.GCP_BUCKET_NAME }}
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+          TF_VAR_name: ${{ secrets.ENV_PREFIX }}
+          TF_VAR_region: ${{ secrets.GCP_REGION }}
+          TF_VAR_zone: ${{ secrets.GCP_ZONE }}
+        steps:
+          # ...workflow-specific steps
+    ```
 
-jobs:
-  deployment:
-    runs-on: ubuntu-latest
-    environment: <your_new_environment>
-    steps:
-      - name: provisioning
-        # ...provisioning-specific steps
-```
+    ```bash
+    cat key.json | base64
+    ```
+    
+    or using the [base64encode.org](https://www.base64encode.org/) online
 
-```bash
-cat key.json | base64
-```
-or using the [base64encode.org](https://www.base64encode.org/) online
+3. Create the `GCP_BUCKET_NAME`, `GCP_PROJECT_ID`, `ENV_PREFIX`, `GCP_REGION` and `GCP_ZONE` on GitHub or set the
+   tf_variables directly in the workflow as these variables are not confidential. **Note** environment variables must
+   have the `TF_VAR_` prefix in order to be visible in the Terraform code.
+4. Push your changes. You can use the GitHub workflow status page to monitor the progress of the workflow.
 
-2. Set the required tf_variables in the main workflow. **Note** environment variables must have the `TF_VAR_` prefix in order to be visible in the Terraform code.            
+## Provision Infra resources using Terraform CLI
 
+1. Move the credentials (plain json file) of the service account to the root path of the project.        
 
-3. Push your changes. You can use the Github workflow status page to monitor the progress of the workflow.
+2. Create the `variables.auto.tfvars` file and set the following variables inside.
 
-### Provision Infra using Terraform
+    ```bash
+    credentials        = "./credentials.json"
+    project_id         = "project_id"
+    region             = "region"
+    zone               = "zone"
+    name               = "workspace_name"
+    ```
 
-1. Move the credentials (plain json file) of the service account to the root path of the project         
-
-
-2. Create the `variables.auto.tfvars` file and set the following variables inside
-
-```bash
-credentials        = "./credentials.json"
-project_id         = "project_id"
-region             = "region"
-zone               = "zone"
-name               = "workspace_name"
-```
-
-### Terraform usage
+## Terraform usage
 
 ```bash
 # Fetch terraform resources
@@ -123,16 +142,19 @@ terraform destroy
 
 The `--auto-approve` option tells Terraform not to require interactive approval of the plan before applying it e.g `terraform apply --auto-approve`
 
-### For any questions, suggestions, or feature requests
+## For any questions, suggestions, or feature requests
 
-Get in touch with me on LinkedIn:
+Get in touch with us:
+
+- Email [dimitris@waresatck.io](mailto:dimitris@warestack.io?subject=[GitHub]%20Source%20Han%20Sans),
+  [stelios@waresatck.io](mailto:stelios@warestack.io?subject=[GitHub]%20Source%20Han%20Sans)
 - [LinkedIn account](https://www.linkedin.com/in/dimitris-kargatzis-1385a2101/)
 
-### License
+## License
 
 License under the MIT License (MIT)
 
-Copyright © 2022 [Dimitris Kargatzis](https://www.linkedin.com/in/dimitris-kargatzis-1385a2101/)
+Copyright © 2022 [Warestack, ltd](https://github.com/warestack)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
