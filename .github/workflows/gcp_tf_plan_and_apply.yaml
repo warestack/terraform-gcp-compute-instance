@@ -1,8 +1,26 @@
-name: Infra managed by terraform
+# This is a GitHub action that does the following things:
+#
+# -- For MAIN branch (on _push_ events) --
+#
+# 1. Config authentication to Google Cloud
+# 2. Config terraform provider's auth by creating the `credentials.json`
+# 3. Init terraform state by providing the bucket name dynamically
+# 4. Validate the terraform configuration files
+# 5. Preview the changes that terraform plans to make to the infra
+# 6. Apply the changes to the infra
+#
+# Note: The service account that is used to support this workflow needs to
+# have the right privileges to create the VPC and compute resources.
+#
+# Author: Dimitris G. Kargatzis (dimitris@warestack.io)
+#
+name: Terraform Init, Validate, Plan and Apply
 on:
   push:
     branches:
-      - main
+      - 'main'
+  release:
+    types: [created]
 
 defaults:
   run:
@@ -14,11 +32,11 @@ jobs:
     env:
       tf_version: '0.14.8'
       tf_working_dir: '.'
-      tf_bucket_name: 'cc2022-lab-6-terraform-state'
-      TF_VAR_project_id: 'cc2022-lab-6'
-      TF_VAR_name: 'lab-6'
-      TF_VAR_region: 'us-central1'
-      TF_VAR_zone: 'us-central1-a'
+      tf_bucket_name: ${{ secrets.GCP_BUCKET_NAME }}
+      TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+      TF_VAR_name: ${{ secrets.ENV_PREFIX }}
+      TF_VAR_region: ${{ secrets.GCP_REGION }}
+      TF_VAR_zone: ${{ secrets.GCP_ZONE }}
     steps:
       - name: checkout
         id: checkout_code
