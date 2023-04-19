@@ -1,3 +1,4 @@
 output "instance_name" {
-  value = google_compute_instance.instance.name
+  description = "The name of the compute instance."
+  value       = google_compute_instance.instance.name
 }

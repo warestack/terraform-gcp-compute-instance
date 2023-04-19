@@ -1,25 +1,25 @@
 variable "credentials" {
-  type        = string
   description = "Location of the credentials keyfile."
+  type        = string
   default     = "./credentials.json"
 }
 
 variable "project_id" {
-  type        = string
   description = "The project ID to host the instance in."
+  type        = string
 }
 
 variable "region" {
-  type        = string
   description = "The region to host the instance in."
+  type        = string
 }
 
 variable "zone" {
-  type        = string
   description = "The zone to host the instance in."
+  type        = string
 }
 
 variable "name" {
-  type        = string
   description = "The name of the env/workspace."
+  type        = string
 }
