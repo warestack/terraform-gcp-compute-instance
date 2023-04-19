@@ -4,11 +4,11 @@ resource "google_compute_firewall" "firewall" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "80", "3000", "3001"]
+    ports    = ["22", "80", "3000", "3001", "5000"]
   }
 
   source_ranges = ["0.0.0.0/0"]
-  source_tags   = ["node-app"]
+  source_tags   = ["node-app", "flask-app"]
 }
 
 resource "google_project_service" "iap-api" {

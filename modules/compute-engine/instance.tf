@@ -13,6 +13,7 @@ resource "google_compute_instance" "instance" {
     access_config {}
   }
 
-  tags                    = ["node-app", "http-server", "https-server"]
+  tags = ["node-app", "flask-app", "http-server", "https-server"]
+
   metadata_startup_script = file("${path.module}/scripts/install-docker.sh")
 }
