@@ -109,9 +109,10 @@ gsutil versioning set on gs://<bucket_name>
     or using the [base64encode.org](https://www.base64encode.org/) online.
 
 3. Create the `GCP_BUCKET_NAME`, `GCP_PROJECT_ID`, `ENV_PREFIX`, `GCP_REGION` and `GCP_ZONE` on GitHub or set the
-   tf_variables directly in the workflow as these variables are not confidential. **Note** environment variables must
-   have the `TF_VAR_` prefix in order to be visible in the Terraform code.
-4. Push your changes. You can use the GitHub workflow status page to monitor the progress of the workflow.
+   tf_variables directly in the `gcp_tf_plan_and_apply.yaml` workflow as these variables are not confidential. **Note**
+   environment variables must have the `TF_VAR_` prefix in order to be visible in the Terraform code.
+4. Push the main branch (`force push` if you have not applied any change) to trigger the workflow. You can use the 
+   GitHub workflow status page to monitor the progress of the workflow.
 
 ## Provision Infra resources using Terraform CLI
 
