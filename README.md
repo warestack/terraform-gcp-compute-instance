@@ -2,13 +2,13 @@
 
 This is a sample Terraform configuration for creating a compute instance and its VPC network and firewall rules in GCP.
 This is the minimum configuration to demonstrate the Continuous Deployment pipeline of any Web application
-(e.g. [flask-app](https://github.com/warestack/gcp-continious-deployment)) on GCP compute instances using Docker and
-GitHub workflows.
+(e.g. this [flask-app](https://github.com/warestack/gcp-continious-deployment)) on GCP compute instances using Docker
+and GitHub workflows.
 
 ## Prerequisites
 
-* Gcloud CLI
-* Kubectl
+- Gcloud CLI
+- Kubectl
 
 ### Config Gcloud CLI
 
@@ -36,7 +36,8 @@ gsutil versioning set on gs://<bucket_name>
 
 ### Google APIs and IAM Roles
 
-1. Create a new service account for Terraform, add a new KEY, download the generated JSON file with the service account credentials.
+1. Create a new service account for Terraform, add a new KEY, download the generated JSON file with the service account
+   credentials.
 
    ```bash
    gcloud iam service-accounts create <serviceAccountName> --project <project_id>
@@ -64,16 +65,16 @@ gsutil versioning set on gs://<bucket_name>
    gcloud services enable iap.googleapis.com
    ```
 
-## Provision Infra resources using GitOps
+## Provision Infra resources using the GitHub workflow
 
 1. Enable GitHub workflows, navigate to the **Actions** page of the repository and enable the main workflow.
-2. Encode the file's content in `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a
-   new GitHub environment with protection rules is preferred. See the following
+2. Encode the content of the Terraform service account JSON file in `BASE64` format and store it as a secret named
+   `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new GitHub environment with protection rules is preferred. See the following
    [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
-   for setting a new GitHub environment. If you do so, make sure that the right environment is defined in the main
-   workflow.
+   for setting a new GitHub environment. If you do so, make sure that the right environment is defined in the 
+   `gcp_tf_plan_and_apply.yaml` workflow.
 
-    ```yaml
+   ```yaml
     name: Terraform Init, Validate, Plan and Apply
     
     on:
@@ -97,13 +98,15 @@ gsutil versioning set on gs://<bucket_name>
           TF_VAR_zone: ${{ secrets.GCP_ZONE }}
         steps:
           # ...workflow-specific steps
-    ```
+   ```
 
-    ```bash
-    cat key.json | base64
-    ```
+   Echo the encoded value of the key using the following command:
     
-    or using the [base64encode.org](https://www.base64encode.org/) online
+   ```bash
+   cat key.json | base64
+   ```
+    
+    or using the [base64encode.org](https://www.base64encode.org/) online.
 
 3. Create the `GCP_BUCKET_NAME`, `GCP_PROJECT_ID`, `ENV_PREFIX`, `GCP_REGION` and `GCP_ZONE` on GitHub or set the
    tf_variables directly in the workflow as these variables are not confidential. **Note** environment variables must
@@ -140,7 +143,8 @@ terraform apply
 terraform destroy
 ```
 
-The `--auto-approve` option tells Terraform not to require interactive approval of the plan before applying it e.g `terraform apply --auto-approve`
+The `--auto-approve` option instructs Terraform not to require interactive approval before applying or destroying the
+execution plan / infra changes (e.g.`terraform apply --auto-approve`).
 
 ## For any questions, suggestions, or feature requests
 
