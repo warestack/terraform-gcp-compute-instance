@@ -8,7 +8,6 @@ and GitHub workflows.
 ## Prerequisites
 
 - Gcloud CLI
-- Kubectl
 
 ### Config Gcloud CLI
 
@@ -19,7 +18,21 @@ gcloud init
 gcloud auth application-default login   
 ```
 
-### Create bcs to support remote terraform state on GCP. 
+### Config GCP project
+
+The `gcp_config.sh` script is used for creating the required resources (GCS bucket and IAM service account) and enabling
+the minimum permissions and services to support this repository needs.
+
+Run the following command to process with the configuration of your project:
+
+```bash
+./config.sh <project-id>
+```
+
+_**Note: This configuration shell script applies the following operations. You can follow the steps below to config the
+GCP project instead of using the shell script.**_
+
+#### Create bcs to support remote terraform state on GCP. 
 
 Bucket name must be globally unique. You can use a bucket name that contains the project id e.g. 
 `terraform-state-<project_id>`.
@@ -34,7 +47,7 @@ Enable remote state versioning (optional).
 gsutil versioning set on gs://<bucket_name>
 ```
 
-### Google APIs and IAM Roles
+#### Google APIs and IAM Roles
 
 1. Create a new service account for Terraform, add a new KEY, download the generated JSON file with the service account
    credentials.
@@ -68,9 +81,9 @@ gsutil versioning set on gs://<bucket_name>
 ## Provision Infra resources using the GitHub workflow
 
 1. Enable GitHub workflows, navigate to the **Actions** page of the repository and enable the main workflow.
-2. Encode the content of the Terraform service account JSON file in `BASE64` format and store it as a secret named
-   `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new GitHub environment with protection rules is preferred. See the following
-   [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
+2. Encode the content of the Terraform service account JSON file (created and downloaded by config shell script ) in 
+   `BASE64` format and store it as a secret named `GCP_TF_SA_CREDS_BASE64` on GitHub, in a new GitHub environment with
+   protection rules is preferred. See the following [link](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
    for setting a new GitHub environment. If you do so, make sure that the right environment is defined in the 
    `gcp_tf_plan_and_apply.yaml` workflow.
 
@@ -114,6 +127,12 @@ gsutil versioning set on gs://<bucket_name>
 4. Push the main branch (`force push` if you have not applied any change) to trigger the workflow. You can use the 
    GitHub workflow status page to monitor the progress of the workflow.
 
+### Destroy all Infra resources using the manual GitHub workflow
+
+Trigger the `Terraform Destroy All` manual workflow using the **Actions** page of the GitHub repository (see 
+[here](https://github.com/warestack/terraform-gcp-compute-instance/actions/workflows/gcp_tf_destroy.yaml)) to destroy
+all Infra resources. You can use the GitHub workflow status page to monitor the progress of the workflow.
+
 ## Provision Infra resources using Terraform CLI
 
 1. Move the credentials (plain json file) of the service account to the root path of the project.        
@@ -127,25 +146,35 @@ gsutil versioning set on gs://<bucket_name>
     zone               = "zone"
     name               = "workspace_name"
     ```
+   
+3. Initializes a working directory containing Terraform configuration files.
 
-## Terraform usage
+   ```bash
+   terraform init
+   ```
+
+4. Preview the changes that terraform plans to make to the infra.
+   ```bash
+   terraform plan
+   ```
+
+5. Execute the actions proposed in a Terraform plan to create, update, or destroy infra resources.
+   ```bash
+   terraform plan
+   ```
+
+You can run the following command to destroy all infra resources managed by the Terraform configuration when you
+finish with the compute instance.
 
 ```bash
-# Fetch terraform resources
-terraform init
-
-# Check the execution plan
-terraform plan
-
-# Apply changes
-terraform apply
-
-# Destroy Infrastructure
 terraform destroy
 ```
 
 The `--auto-approve` option instructs Terraform not to require interactive approval before applying or destroying the
 execution plan / infra changes (e.g.`terraform apply --auto-approve`).
+
+You can use the Terraform `-target` option to preview the execution plan or apply the changes to specific resources,
+modules, or collections of resources (e.g. `terraform apply -target=module.vpc`).
 
 ## For any questions, suggestions, or feature requests
 
