@@ -38,7 +38,7 @@ Bucket name must be globally unique. You can use a bucket name that contains the
 `terraform-state-<project_id>`.
 
 ```bash
-gsutil mb -p <project_id> -c <storage_class> -l <region> gs://<bucket_name>
+gsutil mb -p <project_id> -l <region> gs://<bucket_name>
 ```
 
 Enable remote state versioning (optional).
@@ -160,7 +160,7 @@ all Infra resources. You can use the GitHub workflow status page to monitor the 
 
 5. Execute the actions proposed in a Terraform plan to create, update, or destroy infra resources.
    ```bash
-   terraform plan
+   terraform apply
    ```
 
 You can run the following command to destroy all infra resources managed by the Terraform configuration when you
