@@ -12,7 +12,7 @@
 #
 # Author: Dimitris G. Kargatzis (dimitris@warestack.io)
 #
-name: Terraform Destroy All
+name: Terraform Destroy All Infra Resources
 on:
   workflow_dispatch:
     inputs:
