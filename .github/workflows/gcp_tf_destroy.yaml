@@ -1,0 +1,65 @@
+# This is a GitHub action that does the following things:
+#
+# -- For workflows that are triggered manually --
+#
+# 1. Config authentication to Google Cloud
+# 2. Config terraform provider's auth by creating the `credentials.json`
+# 3. Init terraform state by providing the bucket name dynamically
+# 4. Destroy all infra resources held in Terraform state
+#
+# Note: The service account that is used to support this workflow needs to
+# have the right privileges to delete the VPC and compute resources.
+#
+# Author: Dimitris G. Kargatzis (dimitris@warestack.io)
+#
+name: Terraform Destroy All
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch name'
+        required: true
+        default: 'main'
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      tf_version: '0.14.8'
+      tf_working_dir: '.'
+      tf_bucket_name: ${{ secrets.GCP_BUCKET_NAME }}
+      TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+      TF_VAR_name: ${{ secrets.ENV_PREFIX }}
+      TF_VAR_region: ${{ secrets.GCP_REGION }}
+      TF_VAR_zone: ${{ secrets.GCP_ZONE }}
+    steps:
+      - name: checkout
+        id: checkout_code
+        uses: actions/checkout@v2
+
+      # Config authentication to Google Cloud
+      - id: auth
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_TF_SA_CREDS_BASE64 }}
+
+      # Store terraform SA credentials
+      - name: Store SA credentials to the credentials json file
+        id: sa-config
+        run: |
+          echo ${{ secrets.GCP_TF_SA_CREDS_BASE64 }} | base64 -d > credentials.json
+        shell: bash
+
+      # Init terraform modules
+      - name: Terraform Init
+        id: tf_init
+        run: terraform init -backend-config="bucket=${{ env.tf_bucket_name }}"
+
+      # Destroy all infra resources
+      - name: Terraform Apply
+        id: tf_apply
+        run: terraform apply --auto-approve
