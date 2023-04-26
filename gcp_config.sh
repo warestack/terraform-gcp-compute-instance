@@ -3,6 +3,7 @@
 # ENV VARIABLES
 PROJECT_ID=$1
 PROJECT_REGION="us-central1"
+PROJECT_ZONE="us-central1-a"
 SERVICE_ACCOUNT_NAME="terraform-sa"
 BUCKET_NAME="terraform-state-$PROJECT_ID"
 
@@ -34,11 +35,11 @@ gcloud services enable compute.googleapis.com
 
 # Initialize JSON variable with the values to be stored in the file
 json_output="{
-  \"PROJECT_ID\": \"${PROJECT_ID}\",
-  \"PROJECT_REGION\": \"${PROJECT_REGION}\",
-  \"SERVICE_ACCOUNT_NAME\": \"${SERVICE_ACCOUNT_NAME}\",
-  \"BUCKET_NAME\": \"${BUCKET_NAME}\",
-  \"GCP_TF_SA_CREDS_BASE64\": \"$(cat key.json | base64)\"
+  \"GCP_PROJECT_ID\": \"${PROJECT_ID}\",
+  \"GCP_REGION\": \"${PROJECT_REGION}\",
+  \"GCP_ZONE\": \"${PROJECT_ZONE}\",
+  \"GCP_BUCKET_NAME\": \"${BUCKET_NAME}\",
+  \"GCP_TF_SA_CREDS_BASE64\": \"<YOUR_ENCODED_BASE64_KEY>\"
 }"
 
 # Create and store the JSON data in a file called 'gcp_project_configuration_info.json'
