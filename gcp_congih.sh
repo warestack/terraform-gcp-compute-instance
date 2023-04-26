@@ -32,5 +32,17 @@ gcloud services enable iam.googleapis.com
 gcloud services enable iap.googleapis.com
 gcloud services enable compute.googleapis.com
 
+# Initialize JSON variable with the values to be stored in the file
+json_output"{
+  \"PROJECT_ID\": \"${PROJECT_ID}\",
+  \"PROJECT_REGION\": ${PROJECT_REGION},
+  \"SERVICE_ACCOUNT_NAME\": \"${SERVICE_ACCOUNT_NAME}\",
+  \"BUCKET_NAME\": \"${BUCKET_NAME}\",
+  \"GCP_TF_SA_CREDS_BASE64\": \"${cat key.json | base64}\"
+}"
+
+# Create and store the JSON data in a file called 'gcp_project_configuration_info.json'
+echo "$json_output" > gcp_project_configuration_info.json
+
 echo "Done!"
-echo "CONFIG PROCESS COMPLETED, ENCODE (BASE64) THE CREATED KEY TO CONTINUE."
+echo "CONFIG PROCESS COMPLETED, ."
