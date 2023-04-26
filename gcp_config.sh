@@ -45,4 +45,4 @@ json_output="{
 echo "${json_output}" > gcp_project_configuration_info.json
 
 echo "Done!"
-echo "CONFIG PROCESS COMPLETED, YOU CAN FIND THE DETAILS IN THE `gcp_project_configuration_info.json` FILE."
+echo "CONFIG PROCESS COMPLETED, YOU CAN FIND THE DETAILS IN THE 'gcp_project_configuration_info.json' FILE."
